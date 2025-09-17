@@ -1,4 +1,5 @@
 import cv2, torch, copy
+import numpy as np
 from cv2.typing import MatLike
 from datetime import datetime
 
@@ -42,18 +43,20 @@ class ObjectTracker:
         print(f'캡처 최소 프레임 : {self.count_limit}')
         print(f'캡처 최소 사이즈 : {self.size_limit}')
 
-    def check_n_save(self, frame:MatLike, datas:torch.Tensor):
+    def check_n_save(self, frame:MatLike, datas:np.ndarray):
         ## id:{count:0,saved:False,cls:1,file:file}
         store = copy.deepcopy(self.store)
-        # print(datas)
+        ## 탐지에서 벗어난 ID 삭제용
+        new_cls = set()
         for box in datas:
             cls = str(int(box[-1]))
         # 1. 신규 frame box 데이터 필터(사람, 핸드폰)
             if cls not in self.classes:
                 continue
             id = int(box[4])
+            new_cls.add(id)
             ## 박스 사이즈 width, height 고려
-            x1,y1,x2,y2 = box[:4].numpy().astype(int)
+            x1,y1,x2,y2 = box[:4].astype(int)
             width,height = abs(x2 - x1),abs(y2 - y1)
             if self.verbose:
                 print(cls,width,height,self.size_limit[cls]['width'],self.size_limit[cls]['height'])
@@ -70,8 +73,11 @@ class ObjectTracker:
         ### 파일 포맷 : cls_id_x1_y1_x2_y2_yyyymmddhhmiss.jpg
             if (not store[id]['saved']) and store[id]['count'] >= self.count_limit \
             and width >= int(self.size_limit[cls]['width']) and height >= int(self.size_limit[cls]['height']):
-                img_file = f'{self.event_dir}/{cls}_{id}_{x1}_{y1}_{x2}_{y2}_{datetime.today().strftime("%Y%m%d%H%M%S")}.jpg'
-                cv2.imwrite(img_file,cv2.cvtColor(frame,cv2.COLOR_RGB2BGR))
+                img_file = f'{cls}_{id}_{x1}_{y1}_{x2}_{y2}_{datetime.today().strftime("%Y%m%d%H%M%S")}.jpg'
+                frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
+                cv2.imwrite(f'{self.event_dir}/{img_file}',frame)
+                ## 클래스에 박스 이미지 저장
+                cv2.imwrite(f'{self.event_dir}/{cls}/{img_file}',frame[y1:y2,x1:x2])
                 ## @@@@@@ 저장 로그 처리
                 if self.logger:
                     self.logger.add_log(id,cls,True,img_file,f'count:{store[id]["count"]},size:{width}x{height}')
@@ -80,6 +86,8 @@ class ObjectTracker:
         #### 프레임 저장 후 해당 아이디가 사라질때 까지 추가 저장 하지 않게 하기위함
                 store[id]['saved'] = True
         # 4. 신규 frame box에 존재하지 않는 ID 삭제(신규 store로 기존 store 대체)
+        for cls in set(store.keys()) -new_cls:
+            del store[cls]
         self.store = store
         if self.verbose:
             print(self.store)

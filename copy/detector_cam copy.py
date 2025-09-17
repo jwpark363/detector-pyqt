@@ -10,7 +10,7 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap, QIcon
 from setting_dialog import SettingsDialog
 from watchdog.observers import Observer
-from file_handler import FileCreatedHandler
+from lib.file_handler import FileCreatedHandler
 
 CONFIG_FILE = 'config.json'
 WATCH_DIR = './captured'
