@@ -1,0 +1,40 @@
+{
+    "flip": true,
+    "width": 800,
+    "height": 600,
+    "target_list": {
+        "0": [
+            "\uc0ac\ub78c",
+            "300",
+            "300",
+            true
+        ],
+        "1": [
+            "\uc790\uc804\uac70",
+            "1000",
+            "1000",
+            false
+        ],
+        "2": [
+            "\uc790\ub3d9\ucc28",
+            "1000",
+            "1000",
+            false
+        ],
+        "3": [
+            "\uc624\ud1a0\ubc14\uc774",
+            "1000",
+            "1000",
+            false
+        ],
+        "67": [
+            "\ud578\ub4dc\ud3f0",
+            "100",
+            "100",
+            true
+        ]
+    },
+    "count_limit": 48,
+    "size_limit": 100000,
+    "capture_dir": "./captured"
+}

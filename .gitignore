@@ -1,0 +1,8 @@
+./image
+./.venv
+./copy
+./captured
+
+*.lock
+*.ipynb
+*.pt
