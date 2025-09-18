@@ -26,6 +26,7 @@ name = face_model.whoami(image_file)
 name : 이미지 폴더에서 학습한 결과에 따른 일치하는 사람 이름
 
 규칙
+0. 이미지 파일에 한사람만 포함된 것으로 간주
 1. 이미지명 : 반드시 코드명으로
 2. json 파일 : 반드시 하나의 파일 작성
 3. json 파일 구성 : '코더':'이름' 형식으로 작성
@@ -69,7 +70,7 @@ class FaceRecognition:
     def __face_encoding(self,image_file):
         image = face_recognition.load_image_file(image_file)
         encoding = face_recognition.face_encodings(image)
-        if len(encoding) == 1:
+        if len(encoding) >= 1:
             encoding = encoding[0]
         return encoding
     ## 학습된 인코딩 테이블

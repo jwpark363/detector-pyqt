@@ -1,4 +1,4 @@
-import edge_tts, tempfile, asyncio, os
+import edge_tts, tempfile, asyncio, os, requests
 from watchdog.events import FileSystemEventHandler
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
@@ -25,6 +25,16 @@ class FileCreatedHandler(FileSystemEventHandler):
             content = QMediaContent(url)
             self.player.setMedia(content)
             self.player.play()
+    def post(self, url:str, image_file:str):
+        print(f'upload file : {image_file}')
+        with open(image_file, 'rb') as img:
+            files = {'file':(os.path.basename(image_file), img, 'image/jpeg')}
+            print(files)
+            print(f'api url : {url}')
+            response = requests.post(url,files=files)
+        print(response.status_code, response.text)
+        return response.json()
+
     '''
     1. 파일의 클래스 체크
     2. 클래스에 따른 API 호출
@@ -45,8 +55,9 @@ class FileCreatedHandler(FileSystemEventHandler):
         cls = '0'
         print(f'api : {BASE_URL}/{API_MAP[cls]}')
         print(f'{self.watch_dir}/{cls}/{image_file}')
+        ## post api & return result
     def handle_id(self,image_file):
         cls = '67'
         print(f'api : {BASE_URL}/{API_MAP[cls]}')
         print(f'{self.watch_dir}/{cls}/{image_file}')
-            
+        ## post api & return result
