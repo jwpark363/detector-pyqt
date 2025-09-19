@@ -1,10 +1,13 @@
-## 얼굴 인식 근태 시스템(facial recognition attendance system)
+# 얼굴 인식 근태 시스템(facial recognition attendance system)
 - yolo 사물 인식과 face 인식 모델 이용
 - pyqt5 프론트, fastapi 백앤드
 - edge_tts, QMediaPlayer 이용 음성 출력
 - OCR 이용 사원증 ID 인식 처리
+<div style="display:flex;justify-content: center;">
+<img src="https://raw.githubusercontent.com/jwpark363/detector-pyqt/refs/heads/main/image/cam.png" width="200" style="border-radius:16px">
+</div>
 
-#### fase recognition
+## fase recognition
 - https://pypi.org/project/face-recognition/
 - 얼굴의 랜드마크 정보 벡터 이용
 - 대상 정보 사진 이용 사전 학습
