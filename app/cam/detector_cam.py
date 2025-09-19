@@ -1,14 +1,11 @@
 import cv2, threading, torch
-import numpy as np
 from datetime import datetime
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QImage, QPixmap, QIcon
+from PyQt5.QtGui import QImage, QPixmap
 from ultralytics import YOLO
 from watchdog.observers import Observer
-from lib.file_handler import FileCreatedHandler
-from gui.main_layout import MainLayout
-from lib.object_tracker import ObjectTracker
+from app.cam.file_handler import FileCreatedHandler
+from app.cam.detector_config import DetectorState
 
 CONFIG_FILE = 'config.json'
 WATCH_DIR = './captured'
@@ -23,10 +20,11 @@ WATCH_DIR = './captured'
 class DetectorCam:
     def __init__(self):
         print('*** new detector cam object...')
-        self.viewer = None
-        self.tracker = None
+        self.config = DetectorState()
+        self.viewer = self.config['viewer']
+        self.tracker = self.config['tracker']
         self.flip = True
-        self.target_list = []
+        self.target_list = list(self.config['target_list'].keys())
         ## cam 처리에 필요한 변수들
         self.cam = None
         self.cam_opened = False
@@ -37,7 +35,7 @@ class DetectorCam:
         self.timer.timeout.connect(self.update_frame)
         ## 파일 생성 감시 이벤트
         print('*** File Event Handler initializing...')
-        self.file_handler = FileCreatedHandler('event handler',WATCH_DIR)
+        self.file_handler = FileCreatedHandler('event handler')
         self.observer = Observer()
         self.observer.schedule(self.file_handler,WATCH_DIR,recursive=False)
         threading.Thread(target=self.observer.start, daemon=True).start()
@@ -48,20 +46,12 @@ class DetectorCam:
         if self.cam is not None:
             self.cam.release()    
     ## cam viewer
-    def set_viewer(self, viewer:QLabel):
-        self.viewer = viewer
-    ## tracker
-    def set_tracker(self, tracker:ObjectTracker):
-        self.tracker = tracker
+    # def set_viewer(self, viewer:QLabel):
+    #     self.viewer = viewer
+    # ## tracker
+    # def set_tracker(self, tracker:ObjectTracker):
+    #     self.tracker = tracker
     ## flip
-    def set_config(self, config):
-        # print('detector',config)
-        self.flip = config['flip']
-        ## target list
-        for cls in config['target_list']:
-            self.target_list.append(cls)
-        if self.tracker:
-            self.tracker.init_config(config)
     ## 카메라 스타트    
     def start_camera(self):
         self.cam = cv2.VideoCapture(0)  # 0번 카메라
@@ -72,9 +62,6 @@ class DetectorCam:
         if self.cam:
             self.cam.release()
         self.cam_opened = False
-    # def reset_setting(self,setting):
-    #     self.setting = setting
-    #     self.resize(self.setting['width'], self.setting['height'])
     def update_frame(self):
         ret, frame = self.cam.read()
         if ret:
@@ -86,6 +73,8 @@ class DetectorCam:
                 results = self.model.track(frame, persist=True, verbose=False, )
             ## 현재 프레임 저장
             self.current_frame = frame
+            ## 신규 입사자 저장 상태값 True 이면 저장
+            self.new_member()
             ## tracking
             if results and len(results) > 0 :
                 boxes = results[0].boxes.data.cpu().numpy()
@@ -105,7 +94,7 @@ class DetectorCam:
                             (x1+5,y1+25),
                             cv2.FONT_HERSHEY_SIMPLEX,1,
                             (0,0,255),
-                            2
+                            1
                         )
                 results[0].boxes.data = torch.tensor(new_data)
                 frame = results[0].plot()
@@ -122,3 +111,8 @@ class DetectorCam:
             print(type(captured_image),captured_image.shape)
             captured_file = f'{WATCH_DIR}/{datetime.today().timestamp()}.jpg'
             cv2.imwrite(captured_file, captured_image)
+    def new_member(self):
+        ## 신규 입사자 이미지 등록
+        ## 신규 입사자 저장 상태값 True 이면 저장
+        if self.config['add_newmember']:
+            print('save')

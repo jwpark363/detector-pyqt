@@ -1,14 +1,15 @@
-import cv2, torch, copy
+import cv2, copy
 import numpy as np
 from cv2.typing import MatLike
 from datetime import datetime
+from app.cam.detector_config import DetectorState
 
 class ObjectTracker:
     def __init__(self) -> None:
-        ## id : {count,saved} 저장
-        self.store = {}
         ## 출력 여부
         self.verbose = False
+        ## id : {count,saved} 저장
+        self.store = {}
         ## 클래스 분류 대상 ["0","67",...]
         self.classes = []
         ## 이벤트 디렉토리 이미지 저장 위치
@@ -19,18 +20,19 @@ class ObjectTracker:
         self.size_limit = {}
         ## 로그 팝업
         self.logger = None
+        ## config set
+        self.config = DetectorState()
+        self.init_config()
     
-    def init_config(self, config):
-        print('tracker',config)
-        self.event_dir = config['capture_dir']
-        self.count_limit = config['count_limit']
-        for target in config['target_list']:
-            # print(config['target_list'][target])
-            if config['target_list'][target][3]: ## 대상이면
+    def init_config(self):
+        self.event_dir = self.config['capture_dir']
+        self.count_limit = self.config['count_limit']
+        for target in self.config['target_list']:
+            if self.config['target_list'][target][3]: ## 대상이면
                 self.classes.append(target)
                 self.size_limit[target] = {
-                    'width':config['target_list'][target][1],
-                    'height':config['target_list'][target][2]
+                    'width':self.config['target_list'][target][1],
+                    'height':self.config['target_list'][target][2]
                 }
         self.print_config()
     ## logger 세팅

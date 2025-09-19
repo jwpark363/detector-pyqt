@@ -1,7 +1,6 @@
-./image
-./.venv
-./copy
-./captured
+.venv/
+temp/
+captured/
 
 *.lock
 *.ipynb

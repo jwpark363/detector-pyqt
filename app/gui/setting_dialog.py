@@ -1,25 +1,22 @@
 from PyQt5.QtWidgets import(
      QDialog, QVBoxLayout, QCheckBox, QComboBox, QPushButton,
-     QLabel, QListWidget, QListWidgetItem, QHBoxLayout, QSpinBox
+     QLabel, QSpinBox
 )
-from PyQt5.QtGui import QFont
-from typing import Dict, List
-from gui.target_layout import TargetLayout
-
+from app.gui.target_layout import TargetLayout
+from app.cam.detector_config import DetectorState
 
 class SettingsDialog(QDialog):
-    def __init__(self, parent=None, config:Dict[str,str|bool|int|List[str]]={}):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.config = config
+        self.config = DetectorState()
         self.setWindowTitle("환경설정")
         self.resize(400, 400)
-        # 원하는 폰트 크기 설정
-        font = QFont()
-        font.setPointSize(7)
-
-        # 좌우 반전 체크박스
-        self.flip_checkbox = QCheckBox("좌우 반전")
-        self.flip_checkbox.setChecked(self.config['flip'])
+        # 출퇴근 모드 체크박스
+        self.mode_checkbox = QCheckBox("출근 모드")
+        self.mode_checkbox.setChecked(self.config['mode'] == 'check_in')
+        # 사용 모델 - recognition model 사용 여부
+        self.recognition_model = QCheckBox("얼굴 인식모델 사용")
+        self.recognition_model.setChecked(self.config['recognition_model'])
         # 해상도 선택
         self.resolution_combo = QComboBox()
         self.resolution_combo.addItems(["640x480", "800x600", "1280x720"])
@@ -35,9 +32,9 @@ class SettingsDialog(QDialog):
         # 저장 버튼
         self.save_button = QPushButton("저장")
         self.save_button.clicked.connect(self.accept)
-
         layout = QVBoxLayout()
-        layout.addWidget(self.flip_checkbox)
+        layout.addWidget(self.mode_checkbox)
+        layout.addWidget(self.recognition_model)
         layout.addWidget(self.resolution_combo)
         layout.addWidget(QLabel("탐지 대상 선택(너비 x 높이)"))
         layout.addLayout(target_layout)
@@ -46,10 +43,12 @@ class SettingsDialog(QDialog):
         layout.addWidget(self.min_frame_spin)
         layout.addWidget(self.save_button)
         self.setLayout(layout)
-    ## 호출한 곳에서 처리
-    def get_settings(self):
-        self.config['flip'] = self.flip_checkbox.isChecked()
+        
+    def accept(self) -> None:
+        self.config['mode'] = 'check_in' if self.mode_checkbox.isChecked() else 'check_out'
+        self.config['recognition_model'] = self.recognition_model.isChecked()
         self.config['width'], self.config['height'] = map(int, self.resolution_combo.currentText().split('x'))
         self.config['target_list'] = self.target_list.get_targets()
         self.config['count_limit'] = self.min_frame_spin.value()
-        return self.config
+        self.config.save()        
+        return super().accept()

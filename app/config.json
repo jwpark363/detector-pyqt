@@ -1,4 +1,6 @@
 {
+    "mode": "check_in",
+    "recognition_model": true,
     "flip": true,
     "width": 800,
     "height": 600,
@@ -34,7 +36,8 @@
             true
         ]
     },
-    "count_limit": 48,
+    "count_limit": 42,
     "size_limit": 100000,
-    "capture_dir": "./captured"
+    "capture_dir": "./captured",
+    "new_member": "./new_member"
 }

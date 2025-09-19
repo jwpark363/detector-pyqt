@@ -2,18 +2,20 @@ import edge_tts, tempfile, asyncio, os, requests
 from watchdog.events import FileSystemEventHandler
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
+from app.cam.detector_config import DetectorState
 
-BASE_URL = 'http://localhost:8000/api'
+BASE_URL = 'http://localhost:8000'
 API_MAP = {
-    '0':'person',
-    '67':'id'
+    '0-False':'detect_face', # image_class_model
+    '0-True':'whoami', # recognition_model
+    '67':'ocr',
 }
 class FileCreatedHandler(FileSystemEventHandler):
-    def __init__(self, label, watch_dir):
+    def __init__(self, label):
+        self.config = DetectorState()
         self.label = label
-        self.watch_dir = watch_dir
+        self.watch_dir = self.config['capture_dir']
         self.player = QMediaPlayer()
-
     async def play_voice(self, text):
         voice="ko-KR-SunHiNeural"
         communicate = edge_tts.Communicate(text=text, voice=voice)
@@ -27,14 +29,15 @@ class FileCreatedHandler(FileSystemEventHandler):
             self.player.play()
     def post(self, url:str, image_file:str):
         print(f'upload file : {image_file}')
+        print(f'api url : {url}')
+        params = {
+            'mode':self.config['mode']
+        }
         with open(image_file, 'rb') as img:
-            files = {'file':(os.path.basename(image_file), img, 'image/jpeg')}
-            print(files)
-            print(f'api url : {url}')
-            response = requests.post(url,files=files)
+            files = {'files':(os.path.basename(image_file), img, 'image/jpeg')}
+            response = requests.post(url,files=files, data=params)
         print(response.status_code, response.text)
-        return response.json()
-
+        return response
     '''
     1. 파일의 클래스 체크
     2. 클래스에 따른 API 호출
@@ -45,19 +48,11 @@ class FileCreatedHandler(FileSystemEventHandler):
             target_path = event.src_path
             target_file = os.path.basename(target_path)
             cls = target_file.split('_')[0]
-            print(f"*** File Event Handler - {event.src_path} 파일이 생성됨")
-            if cls == '0': ## 사람
-                self.handle_person(target_file)
-            elif cls == '67': ## 핸드폰(사원증)
-                self.handle_id(target_file)
-            asyncio.run(self.play_voice('음성 테스트'))
-    def handle_person(self,image_file):
-        cls = '0'
-        print(f'api : {BASE_URL}/{API_MAP[cls]}')
-        print(f'{self.watch_dir}/{cls}/{image_file}')
-        ## post api & return result
-    def handle_id(self,image_file):
-        cls = '67'
-        print(f'api : {BASE_URL}/{API_MAP[cls]}')
-        print(f'{self.watch_dir}/{cls}/{image_file}')
-        ## post api & return result
+            if self.config['recognition_model']:
+                cls = f'{cls}-True'
+            else:
+                cls = f'{cls}-False'
+            url = f'{BASE_URL}/{API_MAP[cls]}'
+            response = self.post(url,target_path)
+            result = response.json()[0]
+            asyncio.run(self.play_voice(result['message']))
