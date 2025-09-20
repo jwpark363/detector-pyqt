@@ -21,10 +21,8 @@ class DetectorCam:
     def __init__(self):
         print('*** new detector cam object...')
         self.config = DetectorState()
-        self.viewer = self.config['viewer']
-        self.tracker = self.config['tracker']
         self.flip = True
-        self.target_list = list(self.config['target_list'].keys())
+        # self.target_list = list(self.config['target_list'].keys())
         ## cam 처리에 필요한 변수들
         self.cam = None
         self.cam_opened = False
@@ -45,13 +43,6 @@ class DetectorCam:
         self.timer.stop()
         if self.cam is not None:
             self.cam.release()    
-    ## cam viewer
-    # def set_viewer(self, viewer:QLabel):
-    #     self.viewer = viewer
-    # ## tracker
-    # def set_tracker(self, tracker:ObjectTracker):
-    #     self.tracker = tracker
-    ## flip
     ## 카메라 스타트    
     def start_camera(self):
         self.cam = cv2.VideoCapture(0)  # 0번 카메라
@@ -63,6 +54,9 @@ class DetectorCam:
             self.cam.release()
         self.cam_opened = False
     def update_frame(self):
+        viewer = self.config.get('viewer',None)
+        tracker = self.config.get('tracker',None)
+
         ret, frame = self.cam.read()
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -78,14 +72,15 @@ class DetectorCam:
             ## tracking
             if results and len(results) > 0 :
                 boxes = results[0].boxes.data.cpu().numpy()
-                if self.tracker:
-                    self.tracker.check_n_save(frame,boxes)
+                if tracker:
+                   tracker.check_n_save(frame,boxes)
                 ## 탐지 대상 이외 제외 처리
                 new_data = []
                 for box in boxes:
                     # print(data)
                     cls = str(int(box[-1]))
-                    if cls in self.target_list:
+                    if (cls in self.config['target_list']) \
+                        and self.config['target_list'][cls][3]:
                         new_data.append(box)
                     ## 사이즈 출력
                         x1,y1,x2,y2 = box[:4].astype(int)
@@ -101,7 +96,8 @@ class DetectorCam:
             h, w, ch = frame.shape
             bytes_per_line = ch * w
             qt_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
-            self.viewer.setPixmap(QPixmap.fromImage(qt_image))
+            if viewer:
+                viewer.setPixmap(QPixmap.fromImage(qt_image))
     def save_image(self):
         ## 현재 프레임 파일로 저장
         if self.current_frame is not None:

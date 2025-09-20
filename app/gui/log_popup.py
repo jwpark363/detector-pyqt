@@ -39,6 +39,18 @@ class LogPopup(QWidget):
         self.table.setItem(row, 3, QTableWidgetItem(str(saved)))
         self.table.setItem(row, 4, QTableWidgetItem(str(file)))
         self.table.setItem(row, 5, QTableWidgetItem(str(etc)))
+    def add_tts_log(self,id,cls,result):
+        row = self.table.rowCount()
+        self.table.insertRow(row)
+        timestamp = datetime.today().strftime('%Y.%m.%d-%H:%M:%S')
+        etc = f'ID {id}가 처리 되었습니다. ({result})'
+        self.table.setItem(row, 0, QTableWidgetItem(str(timestamp)))
+        self.table.setItem(row, 1, QTableWidgetItem(str(id)))
+        self.table.setItem(row, 2, QTableWidgetItem(str(cls)))
+        self.table.setItem(row, 3, QTableWidgetItem('TTS'))
+        self.table.setItem(row, 4, QTableWidgetItem(''))
+        self.table.setItem(row, 5, QTableWidgetItem(etc))
+        
     # def update_log(self,row,log):
     #     for idx, data in enumerate(log):
     #         self.table.item(row,idx).setText(str(data))

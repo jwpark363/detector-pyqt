@@ -1,4 +1,5 @@
 import edge_tts, tempfile, asyncio, os, requests
+from gtts import gTTS
 from watchdog.events import FileSystemEventHandler
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
@@ -8,7 +9,8 @@ BASE_URL = 'http://localhost:8000'
 API_MAP = {
     '0-False':'detect_face', # image_class_model
     '0-True':'whoami', # recognition_model
-    '67':'ocr',
+    '67-True':'ocr',
+    '67-False':'ocr',
 }
 class FileCreatedHandler(FileSystemEventHandler):
     def __init__(self, label):
@@ -19,7 +21,9 @@ class FileCreatedHandler(FileSystemEventHandler):
     async def play_voice(self, text):
         voice="ko-KR-SunHiNeural"
         communicate = edge_tts.Communicate(text=text, voice=voice)
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
+        with tempfile.NamedTemporaryFile(
+            dir='./tts_temp', 
+            delete=False, suffix='.mp3') as temp_file:
             temp_path = temp_file.name
             await communicate.save(temp_path)
             # 재생
@@ -27,6 +31,19 @@ class FileCreatedHandler(FileSystemEventHandler):
             content = QMediaContent(url)
             self.player.setMedia(content)
             self.player.play()
+    async def play_voice_by_gtts(self, text):
+        tts = gTTS(text=text, lang='ko')  # 'ko'는 한국어
+        with tempfile.NamedTemporaryFile(
+            dir='./tts_temp', 
+            delete=False, suffix='.mp3') as temp_file:
+            temp_path = temp_file.name
+            tts.save(temp_path)
+            # 재생
+            url = QUrl.fromLocalFile(temp_path)  # 로컬 MP3 파일 경로
+            content = QMediaContent(url)
+            self.player.setMedia(content)
+            self.player.play()
+
     def post(self, url:str, image_file:str):
         print(f'upload file : {image_file}')
         print(f'api url : {url}')
@@ -47,7 +64,7 @@ class FileCreatedHandler(FileSystemEventHandler):
         if not event.is_directory:
             target_path = event.src_path
             target_file = os.path.basename(target_path)
-            cls = target_file.split('_')[0]
+            cls, id = target_file.split('_')[:2]
             if self.config['recognition_model']:
                 cls = f'{cls}-True'
             else:
@@ -55,4 +72,5 @@ class FileCreatedHandler(FileSystemEventHandler):
             url = f'{BASE_URL}/{API_MAP[cls]}'
             response = self.post(url,target_path)
             result = response.json()[0]
-            asyncio.run(self.play_voice(result['message']))
+            self.config['logger'].add_tts_log(id,cls,result)
+            asyncio.run(self.play_voice_by_gtts(result['message']))

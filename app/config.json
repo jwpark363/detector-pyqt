@@ -9,7 +9,7 @@
             "\uc0ac\ub78c",
             "300",
             "300",
-            true
+            false
         ],
         "1": [
             "\uc790\uc804\uac70",
@@ -39,5 +39,6 @@
     "count_limit": 42,
     "size_limit": 100000,
     "capture_dir": "./captured",
-    "new_member": "./new_member"
+    "new_member": "./new_member",
+    "tts_temp": "./tts_temp"
 }

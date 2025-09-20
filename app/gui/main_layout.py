@@ -53,8 +53,8 @@ class MainLayout(QWidget):
     def get_viewer(self):
         return self.image_label
     ## cam close setting
-    def set_cam_object(self, cam_object):
-        self.cam_object = cam_object
+    # def set_cam_object(self, cam_object):
+    #     self.cam_object = cam_object
     def get_config(self):
         return self.config
     def get_logger(self):
@@ -67,16 +67,19 @@ class MainLayout(QWidget):
             pixmap.scaled(self.config['width'],self.config['height'], Qt.KeepAspectRatio)
         )
     def start_camera(self):
-        if self.cam_object.cam_opened:
-            self.cam_object.stop_camera()
-            self.start_button.setText("카메라 시작")
-            self.init_image()
-        else:
-            self.cam_object.start_camera()
-            self.start_button.setText("카메라 종료")
+        cam_object = self.config.get('detector', None)
+        if cam_object:
+            if cam_object.cam_opened:
+                cam_object.stop_camera()
+                self.start_button.setText("카메라 시작")
+                self.init_image()
+            else:
+                cam_object.start_camera()
+                self.start_button.setText("카메라 종료")
     def new_member(self):
+        cam_object = self.config.get('detector', None)
         ## cam이 오픈되어 있을때 가능
-        if self.cam_object.cam_opened:
+        if cam_object and cam_object.cam_opened:
             if self.config['add_newmember']:
                 print('신규 인력 사진 촬영 종료')
                 self.new_button.setText('신규 등록')
@@ -94,5 +97,6 @@ class MainLayout(QWidget):
         if dialog.exec_():
             self.resize(self.config['width'], self.config['height'])
     def closeEvent(self, event):
-        if self.cam_object:
-            self.cam_object.close_cam()
+        cam_object = self.config.get('detector', None)
+        if cam_object and cam_object.cam_opened:
+            cam_object.close_cam()
