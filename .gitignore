@@ -1,6 +1,7 @@
 .venv/
 temp/
 captured/
+new_member/
 
 *.lock
 *.ipynb

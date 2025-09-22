@@ -71,6 +71,9 @@ class FileCreatedHandler(FileSystemEventHandler):
                 cls = f'{cls}-False'
             url = f'{BASE_URL}/{API_MAP[cls]}'
             response = self.post(url,target_path)
-            result = response.json()[0]
+            if response.status_code == 200:
+                result = response.json()[0]['message']
+            else:
+                result = '인식이 실패 하였습니다. 다시 한번 시도해주세요.'
             self.config['logger'].add_tts_log(id,cls,result)
-            asyncio.run(self.play_voice_by_gtts(result['message']))
+            asyncio.run(self.play_voice_by_gtts(result))

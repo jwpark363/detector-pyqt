@@ -6,6 +6,7 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap, QIcon
 from app.gui.setting_dialog import SettingsDialog
 from app.gui.log_popup import LogPopup
+from app.gui.member_popup import MemberPopup
 from app.cam.detector_config import DetectorState
 
 CONFIG_FILE = 'config.json'
@@ -28,6 +29,7 @@ class MainLayout(QWidget):
         self.init_image()
         ## log window
         self.logger = LogPopup()
+        self.member = MemberPopup()
         ## 버튼 시작, 환경 설정
         self.start_button = QPushButton("카메라 시작")
         self.start_button.clicked.connect(self.start_camera)
@@ -35,11 +37,14 @@ class MainLayout(QWidget):
         self.new_button.clicked.connect(self.new_member)
         self.log_button = QPushButton("로그 확인")
         self.log_button.clicked.connect(self.show_logs)
+        self.member_button = QPushButton("사원정보")
+        self.member_button.clicked.connect(self.show_member)
         self.setting_button = QPushButton("환경 설정")
         self.setting_button.clicked.connect(self.open_settings)
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.start_button)
         button_layout.addWidget(self.new_button)
+        button_layout.addWidget(self.member_button)
         button_layout.addWidget(self.setting_button)
         button_layout.addWidget(self.log_button)
         ## 전체 레이아웃
@@ -92,6 +97,8 @@ class MainLayout(QWidget):
         
     def show_logs(self):
         self.logger.show()
+    def show_member(self):
+        self.member.show()
     def open_settings(self):
         dialog = SettingsDialog(self)
         if dialog.exec_():
