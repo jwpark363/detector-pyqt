@@ -43,7 +43,7 @@ class MainLayout(QWidget):
         self.setting_button.clicked.connect(self.open_settings)
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.start_button)
-        button_layout.addWidget(self.new_button)
+        # button_layout.addWidget(self.new_button)
         button_layout.addWidget(self.member_button)
         button_layout.addWidget(self.setting_button)
         button_layout.addWidget(self.log_button)

@@ -2,6 +2,7 @@
 temp/
 captured/
 new_member/
+tts_temp/
 
 *.lock
 *.ipynb

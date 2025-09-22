@@ -42,6 +42,8 @@ class MemberPopup(QWidget):
         model = MemberTableModel(['사번','이름','등록일'],data)
         table_view = QTableView()
         table_view.setModel(model)
+        header = table_view.horizontalHeader()
+        header.setStyleSheet("QHeaderView::section { background-color: lightgray; font-weight: bold; }")
         layout = QVBoxLayout()
         layout.addWidget(table_view)
         self.setLayout(layout)

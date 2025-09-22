@@ -46,7 +46,7 @@ class DetectorCam:
     ## 카메라 스타트    
     def start_camera(self):
         self.cam = cv2.VideoCapture(0)  # 0번 카메라
-        self.timer.start(50)  # 30ms마다 프레임 업데이트
+        self.timer.start(40)  # 30ms마다 프레임 업데이트
         self.cam_opened = True
     def stop_camera(self):
         self.timer.stop()

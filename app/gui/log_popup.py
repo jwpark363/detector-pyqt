@@ -26,7 +26,7 @@ class LogPopup(QWidget):
         # self.timer.start(500)  # 로그 파일 읽어 내용 추가
 
     def add_log(self,id,cls,saved,file,desc=''):
-        row = self.table.rowCount()
+        row = 0 #self.table.rowCount()
         self.table.insertRow(row)
         timestamp = datetime.today().strftime('%Y.%m.%d-%H:%M:%S')
         if saved:
@@ -40,7 +40,7 @@ class LogPopup(QWidget):
         self.table.setItem(row, 4, QTableWidgetItem(str(file)))
         self.table.setItem(row, 5, QTableWidgetItem(str(etc)))
     def add_tts_log(self,id,cls,result):
-        row = self.table.rowCount()
+        row = 0 #self.table.rowCount()
         self.table.insertRow(row)
         timestamp = datetime.today().strftime('%Y.%m.%d-%H:%M:%S')
         etc = f'ID {id}가 처리 되었습니다. ({result})'

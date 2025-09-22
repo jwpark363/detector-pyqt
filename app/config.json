@@ -1,6 +1,6 @@
 {
     "mode": "check_in",
-    "recognition_model": true,
+    "recognition_model": false,
     "flip": true,
     "width": 800,
     "height": 600,
@@ -33,10 +33,10 @@
             "\ud578\ub4dc\ud3f0",
             "50",
             "100",
-            false
+            true
         ]
     },
-    "count_limit": 42,
+    "count_limit": 40,
     "size_limit": 100000,
     "capture_dir": "./captured",
     "new_member": "./new_member",
