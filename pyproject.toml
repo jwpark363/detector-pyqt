@@ -8,6 +8,7 @@ dependencies = [
     "gtts>=2.5.4",
     "jupyter>=1.1.1",
     "opencv-python>=4.12.0.88",
+    "pyinstall>=0.1.4",
     "ultralytics>=8.3.199",
     "watchdog>=6.0.0",
 ]

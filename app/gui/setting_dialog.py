@@ -34,7 +34,7 @@ class SettingsDialog(QDialog):
         self.save_button.clicked.connect(self.accept)
         layout = QVBoxLayout()
         layout.addWidget(self.mode_checkbox)
-        layout.addWidget(self.recognition_model)
+        # layout.addWidget(self.recognition_model)
         layout.addWidget(self.resolution_combo)
         layout.addWidget(QLabel("탐지 대상 선택(너비 x 높이)"))
         layout.addLayout(target_layout)
