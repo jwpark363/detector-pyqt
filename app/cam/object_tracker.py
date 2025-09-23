@@ -34,13 +34,17 @@ class ObjectTracker:
             if self.verbose:
                 print(cls,width,height,self.config['target_list'][cls][1],self.config['target_list'][cls][2])
         # 2. ID 카운팅
-            if id in store:
+            # if id in store:
+            #     store[id]['count'] = self.store[id]['count'] + 1
+            # else:
+            #     store[id] = {'count':1, 'saved':False}
+            try:
                 store[id]['count'] = self.store[id]['count'] + 1
-            else:
+            except:
                 store[id] = {'count':1, 'saved':False}
                 ## @@@@@@ 탐지 로그 처리
                 if logger:
-                    logger.add_log(id,cls,False,'')
+                    logger.add_log(id,cls,'False','')
         # 3. 최소 20개(설정) 이상 인경우 프레임 이미지로 저장 후 ID 삭제
         ### 저장시 해당 프레임과 BOX 데이터도 함께 저장 매치 시키기 위해 id_timestamp.jpg, id_timestamp.box
         ### 파일 포맷 : cls_id_x1_y1_x2_y2_yyyymmddhhmiss.jpg
@@ -53,7 +57,7 @@ class ObjectTracker:
                 cv2.imwrite(f'{self.config["capture_dir"]}/{cls}/{img_file}',frame[y1:y2,x1:x2])
                 ## @@@@@@ 저장 로그 처리
                 if logger:
-                    logger.add_log(id,cls,True,img_file,f'count:{store[id]["count"]},size:{width}x{height}')
+                    logger.add_log(id,cls,'True',img_file,f'count:{store[id]["count"]},size:{width}x{height}')
                 if self.verbose:
                     print(f'&&& id {id}-{width}x{height} saved & deleted')
         #### 프레임 저장 후 해당 아이디가 사라질때 까지 추가 저장 하지 않게 하기위함

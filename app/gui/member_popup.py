@@ -2,6 +2,7 @@ import requests
 from PyQt5.QtWidgets import QWidget, QTableView, QVBoxLayout
 from PyQt5.QtCore import Qt, QAbstractTableModel
 from PyQt5.QtGui import QIcon
+from app.cam.detector_config import DetectorState
 
 class MemberTableModel(QAbstractTableModel):
     def __init__(self, columns, data):
@@ -34,8 +35,10 @@ class MemberPopup(QWidget):
         self.setWindowTitle("직원 리스트 확인")
         self.setWindowIcon(QIcon("./image/icon.png"))  # 아이콘 파일 경로
         self.resize(640, 480)
-        response = requests.get('http://localhost:8000/members')
-        members = response.json()
+        config = DetectorState()
+        # response = requests.get('http://localhost:8000/members')
+        # members = response.json()
+        members = config['members']
         data = []
         for member in members:
             data.append([member['employee_id'],member['name'],member['reg_date']])

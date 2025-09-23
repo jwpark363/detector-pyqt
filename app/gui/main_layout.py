@@ -1,4 +1,4 @@
-import json
+import json, requests
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 )
@@ -29,8 +29,12 @@ class MainLayout(QWidget):
         self.init_image()
         ## log window
         self.logger = LogPopup()
+        ## member window
+        response = requests.get('http://localhost:8000/members')
+        members = response.json()
+        self.config['members'] = members
         self.member = MemberPopup()
-        ## 버튼 시작, 환경 설정
+        # 버튼 시작, 환경 설정
         self.start_button = QPushButton("카메라 시작")
         self.start_button.clicked.connect(self.start_camera)
         self.new_button = QPushButton("신규 등록")
@@ -98,6 +102,9 @@ class MainLayout(QWidget):
     def show_logs(self):
         self.logger.show()
     def show_member(self):
+        # response = requests.get('http://localhost:8000/members')
+        # members = response.json()
+        # self.config['members'] = members
         self.member.show()
     def open_settings(self):
         dialog = SettingsDialog(self)

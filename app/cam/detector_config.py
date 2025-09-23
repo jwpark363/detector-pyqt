@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
 )
 
 CONFIG_FILE = './app/config.json'
-NO_SAVE_KEY = ['detector','viewer','tracker','logger','add_newmember']
+NO_SAVE_KEY = ['detector','viewer','tracker','logger','add_newmember','members']
 ## 'add_member' : 신규 인력 추가 모드 체크용
 class DetectorState(UserDict):
     ## 싱글톤

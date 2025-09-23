@@ -71,6 +71,7 @@ class FileCreatedHandler(FileSystemEventHandler):
                 cls = f'{cls}-False'
             url = f'{BASE_URL}/{API_MAP[cls]}'
             response = self.post(url,target_path)
+            print(response.json())
             if response.status_code == 200:
                 result = response.json()[0]['message']
             else:
